@@ -1,6 +1,5 @@
 package com.dexter.kycsample
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -45,9 +44,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getStatus() {
-        val apiInterface: APIInterface = APIClient.getClient(this, "https://sandbox.veri5digital.com/")!!.create(APIInterface::class.java)
+        val apiInterface: APIInterface = APIClient.getClient(
+            this,
+            "https://sandbox.veri5digital.com/"
+        )!!.create(APIInterface::class.java)
         apiInterface.getStatus()!!.enqueue(object : Callback<UIDAIResponse?> {
-            override fun onResponse(call: Call<UIDAIResponse?>?, response: Response<UIDAIResponse?>) {
+            override fun onResponse(
+                call: Call<UIDAIResponse?>?,
+                response: Response<UIDAIResponse?>
+            ) {
                 if (response.isSuccessful) {
                     val statusResponse: UIDAIResponse? = response.body()
                     if (statusResponse != null) {
@@ -63,13 +68,25 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<UIDAIResponse?>?, t: Throwable) {
                 return when (t) {
                     is SSLHandshakeException -> {
-                        showSnackMessage(rootLayout, "error", "Your wifi firewall may be blocking your access to our service. Please switch your internet connection")
+                        showSnackMessage(
+                            rootLayout,
+                            "error",
+                            "Your wifi firewall may be blocking your access to our service. Please switch your internet connection"
+                        )
                     }
                     is TimeoutException -> {
-                        showSnackMessage(rootLayout, "error", "There seems to be an error with your connection")
+                        showSnackMessage(
+                            rootLayout,
+                            "error",
+                            "There seems to be an error with your connection"
+                        )
                     }
                     is java.net.SocketTimeoutException -> {
-                        showSnackMessage(rootLayout, "error", "There seems to be an error with your connection")
+                        showSnackMessage(
+                            rootLayout,
+                            "error",
+                            "There seems to be an error with your connection"
+                        )
                     }
                     else -> {
                         showSnackMessage(rootLayout, "error", "You are not connected to internet")
@@ -160,43 +177,89 @@ class MainActivity : AppCompatActivity() {
 
     private fun callKycAPI(id: String) {
         val hash: String = generateRequestHash(id)
-        val apiInterface: APIInterface = APIClient.getClient(this, "https://sandbox.veri5digital.com/")!!.create(APIInterface::class.java)
-        val headersBean = Headers("OZEL6526", requestID, "TRIAL", "REVISED", "DEFAULT")
-        apiInterface.postKyc(KYCRequest(headersBean, Request("FM63634NF", id, hash)))!!.enqueue(object : Callback<KYCResponse?> {
-            override fun onResponse(call: Call<KYCResponse?>?, response: Response<KYCResponse?>) {
-                if (response.isSuccessful) {
-                    val kycResponse: KYCResponse? = response.body()
-                    if (kycResponse != null) {
-                        if (kycResponse.responseStatus.status == "SUCCESS") {
-                            val data: ByteArray = Base64.decode(kycResponse.responseData.kycInfo, Base64.DEFAULT)
-                            val text = String(data, StandardCharsets.UTF_8)
-                            showSnackMessage(rootLayout, "success", text)
+        val apiInterface: APIInterface = APIClient.getClient(
+            this,
+            "https://sandbox.veri5digital.com/"
+        )!!.create(APIInterface::class.java)
+        val headersBean = Headers(
+            "OZEL6526",
+            "OZEL6526",
+            "CUSTOMER",
+            "ANDROID_SDK",
+            requestID,
+            "",
+            "",
+            "",
+            System.currentTimeMillis().toString(),
+            "TRIAL",
+            "",
+            "SELF",
+            "4.2.0",
+            "REVISED",
+            "REVISED"
+        )
+        apiInterface.postKyc(KYCRequest(headersBean, Request("FM63634NF", id, hash)))!!.enqueue(
+            object : Callback<KYCResponse?> {
+                override fun onResponse(
+                    call: Call<KYCResponse?>?,
+                    response: Response<KYCResponse?>
+                ) {
+                    if (response.isSuccessful) {
+                        val kycResponse: KYCResponse? = response.body()
+                        if (kycResponse != null) {
+                            if (kycResponse.responseStatus.status == "SUCCESS") {
+                                val data: ByteArray = Base64.decode(
+                                    kycResponse.responseData.kycInfo,
+                                    Base64.DEFAULT
+                                )
+                                val text = String(data, StandardCharsets.UTF_8)
+                                showSnackMessage(rootLayout, "success", text)
+                            } else {
+                                showSnackMessage(
+                                    rootLayout,
+                                    "error",
+                                    kycResponse.responseStatus.message
+                                )
+                            }
                         } else {
-                            showSnackMessage(rootLayout, "error", kycResponse.responseStatus.message)
+                            showSnackMessage(rootLayout, "error", "Some error occurred")
                         }
-                    } else {
-                        showSnackMessage(rootLayout, "error", "Some error occurred")
                     }
                 }
-            }
 
-            override fun onFailure(call: Call<KYCResponse?>, t: Throwable) {
-                return when (t) {
-                    is SSLHandshakeException -> {
-                        showSnackMessage(rootLayout, "error", "Your wifi firewall may be blocking your access to our service. Please switch your internet connection")
-                    }
-                    is TimeoutException -> {
-                        showSnackMessage(rootLayout, "error", "There seems to be an error with your connection")
-                    }
-                    is java.net.SocketTimeoutException -> {
-                        showSnackMessage(rootLayout, "error", "There seems to be an error with your connection")
-                    }
-                    else -> {
-                        showSnackMessage(rootLayout, "error", "You are not connected to internet")
+                override fun onFailure(call: Call<KYCResponse?>, t: Throwable) {
+                    return when (t) {
+                        is SSLHandshakeException -> {
+                            showSnackMessage(
+                                rootLayout,
+                                "error",
+                                "Your wifi firewall may be blocking your access to our service. Please switch your internet connection"
+                            )
+                        }
+                        is TimeoutException -> {
+                            showSnackMessage(
+                                rootLayout,
+                                "error",
+                                "There seems to be an error with your connection"
+                            )
+                        }
+                        is java.net.SocketTimeoutException -> {
+                            showSnackMessage(
+                                rootLayout,
+                                "error",
+                                "There seems to be an error with your connection"
+                            )
+                        }
+                        else -> {
+                            showSnackMessage(
+                                rootLayout,
+                                "error",
+                                "You are not connected to internet"
+                            )
+                        }
                     }
                 }
-            }
-        })
+            })
     }
 
     private fun showSnackMessage(root: View, type: String, message: String) {
