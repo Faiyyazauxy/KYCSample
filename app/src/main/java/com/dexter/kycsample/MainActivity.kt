@@ -198,7 +198,10 @@ class MainActivity : AppCompatActivity() {
             "REVISED",
             "REVISED"
         )
-        apiInterface.postKyc(KYCRequest(headersBean, Request("FM63634NF", id, hash)))!!.enqueue(
+
+        val request = Request("FM63634NF", id, hash);
+
+        apiInterface.postKyc(KYCRequest(headersBean, request))!!.enqueue(
             object : Callback<KYCResponse?> {
                 override fun onResponse(
                     call: Call<KYCResponse?>?,
